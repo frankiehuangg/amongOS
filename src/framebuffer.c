@@ -3,6 +3,7 @@
 #include "lib-header/stdmem.h"
 #include "lib-header/portio.h"
 #include "stdmem.c"
+#include "portio.c"
 /**
  * Terminal framebuffer
  * Resolution: 80x25
@@ -38,7 +39,17 @@ void framebuffer_write(uint8_t row, uint8_t col, char c, uint8_t fg, uint8_t bg)
  * @param r row
  * @param c column
 */
-void framebuffer_set_cursor(uint8_t r, uint8_t c);
+void framebuffer_set_cursor(uint8_t r, uint8_t c){
+
+    uint16_t position = r * 80 + c;
+    // Send the high byte of the position to the control register
+    out(0x3D4, 0x0E);
+    out(0x3D5, position >> 8);
+    // Send the low byte of the position to the control register
+    out(0x3D4, 0x0f);
+    out(0x3D5, position & 0xFF);
+
+}
 
 void framebuffer_clear(void) {
     unsigned blank;

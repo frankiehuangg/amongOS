@@ -42,11 +42,11 @@ void framebuffer_set_cursor(uint8_t r, uint8_t c){
 
     uint16_t position = r * 80 + c;
     // Send the high byte of the position to the control register
-    out(0x3D4, 0x0E);
-    out(0x3D5, position >> 8);
+    out(CURSOR_PORT_CMD, 0x0E);
+    out(CURSOR_PORT_DATA, position >> 8);
     // Send the low byte of the position to the control register
-    out(0x3D4, 0x0f);
-    out(0x3D5, position & 0xFF);
+    out(CURSOR_PORT_CMD, 0x0f);
+    out(CURSOR_PORT_DATA, position & 0xFF);
 
 }
 

@@ -9,49 +9,49 @@
 struct GlobalDescriptorTable global_descriptor_table = {
     .table = {
         {
-            0x0, //null descriptor
-            0x0, 
-            0x0, 
-            0x0, 
-            0b0, 
-            0x0, 
-            0b0, 
-            0x0, 
-            0b0, 
-            0b0, 
-            0b0, 
-            0b0, 
-            0x0    
+            .segment_low = 0x0,
+            .base_low = 0x0, 
+            .base_mid = 0x0, 
+            .type_bit = 0x0, 
+            .non_system = 0b0, 
+            .dpl = 0x0, 
+            .p_flag = 0b0, 
+            .seg_high = 0x0, 
+            .avl_bit = 0b0, 
+            .l_flag = 0b0, 
+            .db_flag = 0b0, 
+            .g_flag = 0b0, 
+            .base_high = 0x0    
         },
         {
-            0xFFFF, //seglow
-            0x0000, //baselow
-            0x00, //basemid
-            0xA, //typebit
-            0b1, //sflag
-            0x0, //dpl
-            0b1, //pflag
-            0xF, //seghi
-            0b0, //avl
-            0b0, //lflag
-            0b1, //dbflag
-            0b1, //gflag
-            0x00 //basehi
+            .segment_low = 0xFFFF,
+            .base_low = 0x0000, 
+            .base_mid = 0x00, 
+            .type_bit = 0xA, 
+            .non_system = 0b1, 
+            .dpl = 0x0, 
+            .p_flag = 0b1, 
+            .seg_high = 0xF, 
+            .avl_bit = 0b0, 
+            .l_flag = 0b0, 
+            .db_flag = 0b1, 
+            .g_flag = 0b1, 
+            .base_high = 0x00   
         },
         {
-            0xFFFF, //seglow
-            0x0000, //baselow
-            0x00, //basemid
-            0x2, //typebit
-            0b1, //sflag
-            0x0, //dpl
-            0b1, //pflag
-            0xF, //seghi
-            0b0, //avl
-            0b0, //lflag
-            0b1, //dbflag
-            0b1, //gflag
-            0x00 //basehi
+            .segment_low = 0xFFFF,
+            .base_low = 0x0000, 
+            .base_mid = 0x00, 
+            .type_bit = 0x2, 
+            .non_system = 0b1, 
+            .dpl = 0x0, 
+            .p_flag = 0b1, 
+            .seg_high = 0xF, 
+            .avl_bit = 0b0, 
+            .l_flag = 0b0, 
+            .db_flag = 0b1, 
+            .g_flag = 0b1, 
+            .base_high = 0x00  
         }
     }
 };

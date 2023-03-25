@@ -17,25 +17,32 @@ extern struct GDTR _gdt_gdtr;
  * @param base_mid     8-bit middle-bit base address
  * @param type_bit     4-bit contain type flags
  * @param non_system   1-bit contain system
+ * @param dpl          2-bit dpl
+ * @param p_flag       1-bit contain p flag
+ * @param seg_high     4-bit higher-bit segment limit
+ * @param avl_bit      1-bit available bit
+ * @param l_flag       1-bit contain l flag
+ * @param db_flag      1-bit contain db flag
+ * @param g_flag       1-bit contain g flag
+ * @param base_high    8-bit higher-bit base address
  */
 struct SegmentDescriptor {
     // First 32-bit
     uint16_t segment_low;
     uint16_t base_low;
 
-    // Next 16-bit (Bit 32 to 47) (??? tapi kan ada 64-bit?)
-    uint8_t             base_mid;
+    // Next 32-bit
+    uint8_t base_mid;
     uint8_t type_bit   : 4;
     uint8_t non_system : 1;
-    // gaktau perlu bikin @param ato nggak
     uint8_t dpl        : 2;
     uint8_t p_flag     : 1;
-    uint8_t seg_hi     : 4;
+    uint8_t seg_high   : 4;
     uint8_t avl_bit    : 1;
     uint8_t l_flag     : 1;
     uint8_t db_flag    : 1;
     uint8_t g_flag     : 1;
-    uint8_t base_hi ;
+    uint8_t base_high;
 
 } __attribute__((packed));
 

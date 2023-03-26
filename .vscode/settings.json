@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 {
     "debug.onTaskErrors": "debugAnyway",
     "files.associations": {
         "stdmem.h": "c",
         "framebuffer.h": "c"
     },
+=======
+{
+    "debug.onTaskErrors": "debugAnyway",
+    "files.associations": {
+        "stdmem.h": "c",
+        "idt.h": "c"
+    },
+>>>>>>> d394d9d576507c43176b0e1ad4cd258849bfa235
 }

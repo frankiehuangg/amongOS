@@ -1,4 +1,5 @@
 #include "lib-header/interrupt.h"
+#include "lib-header/portio.h"
 
 void main_interrupt_handler(
     __attribute__((unused)) struct CPURegister cpu,
@@ -8,20 +9,6 @@ void main_interrupt_handler(
     switch (int_number) {
 
     }
-}
-
-static inline uint8_t in(uint16_t port)
-{
-    uint8_t ret;
-    __asm__ volatile ( "in %1, %0"
-                   : "=a"(ret)
-                   : "Nd"(port) );
-    return ret;
-}
-
-static inline void out(uint16_t port, uint8_t val)
-{
-    __asm__ volatile ( "out %0, %1" : : "a"(val), "Nd"(port) );
 }
 
 void io_wait(void) {

@@ -51,10 +51,9 @@ void framebuffer_set_cursor(uint8_t r, uint8_t c){
 }
 
 void framebuffer_clear(void) {
-    unsigned blank;
-    int i;
-    blank = 0;
-
-    for(i = 0; i < 1000; i++)
-        memset(textmemptr + i * 400, blank, 800);
+    for(int i = 0; i < 25; i++){
+        for(int j = 0; j < 80 ; j++){
+            framebuffer_write(i, j, 0, 0x7, 0);
+        }
+    }
 }

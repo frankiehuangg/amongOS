@@ -63,25 +63,27 @@ void create_fat32(void)
     // Write cluster 0
     uint32_t buffer_zero[BLOCK_SIZE / 4];
     buffer_zero[0] = CLUSTER_0_VALUE;
-    write_clusters(buffer_zero, 1, 1);
+    write_clusters(buffer_zero, 0, 1);
 
     // Write cluster 1
     uint32_t buffer_one[BLOCK_SIZE / 4];
     buffer_one[0] = CLUSTER_1_VALUE;
-    write_clusters(buffer_one, 2, 1);
+    write_clusters(buffer_one, FAT_CLUSTER_NUMBER, 1);
 
     // Write root
     struct FAT32DirectoryTable root_dir;
-    init_directory_table(&root_dir, "root", 0);
-    uint8_t root_dir_buffer[BLOCK_SIZE];
+    init_directory_table(&root_dir, "root", ROOT_CLUSTER_NUMBER);
+    uint8_t root_dir_buffer[CLUSTER_SIZE];
     memcpy(root_dir_buffer, &root_dir, sizeof(root_dir));
-    write_clusters(root_dir_buffer, 3, 1);
+    write_clusters(root_dir_buffer, ROOT_CLUSTER_NUMBER, 1);
 }
 
 void initialize_filesystem_fat32(void)
 {
     if (is_empty_storage())
+    {
         create_fat32();
+    }
     else
     {
         read_clusters(&driver_state, FAT_CLUSTER_NUMBER, 1);
@@ -97,3 +99,4 @@ void read_clusters(void *ptr, uint32_t cluster_number, uint8_t cluster_count)
 {
     read_blocks(ptr, cluster_to_lba(cluster_number), cluster_count * 4);
 }
+

@@ -100,3 +100,65 @@ void read_clusters(void *ptr, uint32_t cluster_number, uint8_t cluster_count)
     read_blocks(ptr, cluster_to_lba(cluster_number), cluster_count * 4);
 }
 
+/*
+int8_t read_directory(struct FAT32DriverRequest request)
+{
+    int8_t foundIndex=dirtable_linear_search(request.parent_cluster_number);
+    if(foundIndex==-1)
+        return 2;
+    struct FAT32DirectoryTable dir_parent;
+    read_clusters(&dir_parent,request.parent_cluster_number,1);
+
+    struct FAT32DirectoryEntry entry;
+    entry = dir_parent.table[foundIndex];
+
+    if(entry.attribute != ATTR_SUBDIRECTORY)
+    return 1;
+
+    int32_t entrycluster = entry.cluster_high<<16;
+    entrycluster += entry.cluster_low;
+
+    read_clusters(request.buf, entrycluster, 1);
+    return 0;
+    
+    return -1;
+}
+
+int8_t read(struct FAT32DriverRequest request)
+{
+    int8_t foundIndex=dirtable_linear_search(request.parent_cluster_number);
+    if(foundIndex==-1)
+        return 3;
+
+    struct FAT32DirectoryTable dir_parent;
+    read_clusters(&dir_parent,request.parent_cluster_number,1);
+
+    struct FAT32DirectoryEntry entry;
+    entry = dir_parent.table[foundIndex];
+    if(request.buffer_size<entry.filesize)
+        return 2;
+    if(entry.attribute==ATTR_SUBDIRECTORY)
+        return 1;
+    
+    int32_t entrycluster = entry.cluster_high<<16;
+    entrycluster += entry.cluster_low;
+
+    read_clusters(request.buf,entrycluster, entry.filesize);
+    return 0;
+
+    return -1;//gatau dah???
+}
+
+int8_t dirtable_linear_search(uint8_t parent_cluster_number)
+{
+    struct FAT32DirectoryTable dir_parent;
+    read_clusters(&dir_parent,parent_cluster_number,1);
+
+    for(int i=0; i<64; i++){
+        dir_parent.table[i].name;//TODO: check if same with param(add later)
+        dir_parent.table[i].ext;
+    }
+    //if same return index, else return -1;
+    return 0;
+}
+*/

@@ -1,5 +1,6 @@
 #include "lib-header/disk.h"
 #include "lib-header/portio.h"
+#include "lib-header/stdtype.h"
 
 static void ATA_busy_wait() {
     while (in(0x1F7) & ATA_STATUS_BSY);
@@ -7,6 +8,28 @@ static void ATA_busy_wait() {
 
 static void ATA_DRQ_wait() {
     while (!(in(0x1F7) & ATA_STATUS_RDY));
+}
+
+void out16(uint32_t port, uint16_t data)
+{
+    __asm__(
+        "outw %0, %1"
+        : // <Empty output operand>
+        : "a"(data), "Nd"(port)
+    );
+}
+
+uint16_t in16(uint32_t port)
+{
+    uint16_t result;
+
+    __asm__ volatile(
+        "inw %1, %0"
+        : "=a"(result)
+        : "Nd"(port)
+    );
+
+    return result;
 }
 
 void read_blocks(void *ptr, uint32_t logical_block_address, uint8_t block_count) {

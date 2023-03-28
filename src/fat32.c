@@ -99,11 +99,11 @@ void read_clusters(void *ptr, uint32_t cluster_number, uint8_t cluster_count)
 }
 
 
-/*
+
 int8_t read_directory(struct FAT32DriverRequest request)
 {
 
-    int8_t foundIndex=dirtable_linear_search(request.parent_cluster_number,request.name,request.ext);
+    int8_t foundIndex=dirtable_linear_search(request.parent_cluster_number, request);
     if(foundIndex==-1)
         return 2;
     struct FAT32DirectoryTable dir_parent;
@@ -126,12 +126,14 @@ int8_t read_directory(struct FAT32DriverRequest request)
 
 int8_t read(struct FAT32DriverRequest request)
 {
-    int8_t foundIndex=dirtable_linear_search(request.parent_cluster_number);
+    int8_t foundIndex=dirtable_linear_search(request.parent_cluster_number, request);
     if(foundIndex==-1)
         return 3;
 
     struct FAT32DirectoryTable dir_parent;
     read_clusters(&dir_parent,request.parent_cluster_number,1);
+    struct FAT32FileAllocationTable fat;
+    read_clusters(&fat,FAT_CLUSTER_NUMBER,1);
 
     struct FAT32DirectoryEntry entry;
     entry = dir_parent.table[foundIndex];
@@ -143,12 +145,25 @@ int8_t read(struct FAT32DriverRequest request)
     int32_t entrycluster = entry.cluster_high<<16;
     entrycluster += entry.cluster_low;
 
-    read_clusters(request.buf,entrycluster, entry.filesize);
+    int32_t test;
+    int32_t cur_cluster=entrycluster;
+    int16_t count=0;
+
+    test = fat.cluster_map[cur_cluster];
+    while(test!=FAT32_FAT_END_OF_FILE)
+    {
+        read_clusters(request.buf+count*CLUSTER_SIZE,cur_cluster,1);
+        cur_cluster=test;
+        test=fat.cluster_map[cur_cluster];
+        count++;
+    }
+    read_clusters(request.buf+count*CLUSTER_SIZE,cur_cluster,1);
+
     return 0;
 
     return -1;//gatau dah???
 }
-*/
+
 int8_t dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32DriverRequest entry)
 {
     struct FAT32DirectoryTable dir_parent;
@@ -203,8 +218,8 @@ int8_t write(struct FAT32DriverRequest request)
         }
         else
         {
-            write_clusters(request.buf+count,i,1);
-            request.buf=request.buf;
+            write_clusters(request.buf+count*CLUSTER_SIZE,i,1);
+            request.buf++;
             
             size_to_allocate-=1;
 

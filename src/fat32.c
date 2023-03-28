@@ -54,21 +54,19 @@ bool is_empty_storage(void)
 
 void create_fat32(void)
 {
-    // Write boot sector
-    uint8_t boot_sector[BLOCK_SIZE];
-    memset(boot_sector, 0, BLOCK_SIZE);
+    // Write boot sector / cluster 0
+    uint8_t boot_sector[CLUSTER_SIZE];
+    memset(boot_sector, 0, CLUSTER_SIZE);
     memcpy(boot_sector, fs_signature, BLOCK_SIZE);
     write_clusters(boot_sector, 0, 1);
 
-    // Write cluster 0
-    uint32_t buffer_zero[BLOCK_SIZE / 4];
-    buffer_zero[0] = CLUSTER_0_VALUE;
-    write_clusters(buffer_zero, 0, 1);
-
     // Write cluster 1
-    uint32_t buffer_one[BLOCK_SIZE / 4];
-    buffer_one[0] = CLUSTER_1_VALUE;
-    write_clusters(buffer_one, FAT_CLUSTER_NUMBER, 1);
+    uint32_t reserved[BLOCK_SIZE];
+    memset(reserved, 0, BLOCK_SIZE);
+    reserved[0] = CLUSTER_0_VALUE;
+    reserved[1] = CLUSTER_1_VALUE;
+    reserved[2] = FAT32_FAT_END_OF_FILE;
+    write_clusters(reserved, FAT_CLUSTER_NUMBER, 1);
 
     // Write root
     struct FAT32DirectoryTable root_dir;
@@ -99,6 +97,7 @@ void read_clusters(void *ptr, uint32_t cluster_number, uint8_t cluster_count)
 {
     read_blocks(ptr, cluster_to_lba(cluster_number), cluster_count * 4);
 }
+
 
 /*
 int8_t read_directory(struct FAT32DriverRequest request)

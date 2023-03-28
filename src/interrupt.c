@@ -1,5 +1,6 @@
 #include "lib-header/interrupt.h"
 #include "lib-header/portio.h"
+#include "lib-header/keyboard.h"
 
 void main_interrupt_handler(
     __attribute__((unused)) struct CPURegister cpu,
@@ -7,7 +8,9 @@ void main_interrupt_handler(
     __attribute__((unused)) struct InterruptStack info
 ) {
     switch (int_number) {
-
+        case 33:
+            keyboard_isr();
+            break;
     }
 }
 
@@ -51,3 +54,10 @@ void pic_remap(void) {
     out(PIC1_DATA, a1);
     out(PIC2_DATA, a2);
 }
+
+// Activate PIC mask for keyboard only
+void activate_keyboard_interrupt(void) {
+    out(PIC1_DATA, PIC_DISABLE_ALL_MASK ^ (1 << IRQ_KEYBOARD));
+    out(PIC2_DATA, PIC_DISABLE_ALL_MASK);
+}
+

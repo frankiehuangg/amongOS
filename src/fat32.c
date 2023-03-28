@@ -157,10 +157,10 @@ int8_t dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32Driver
     for(int i=1; i<64; i++){
         char* cur_name = dir_parent.table[i].name;
         char* cur_ext = dir_parent.table[i].ext;
-        if(memcmp(cur_name, entry.name, 8)){
+        if(!memcmp(cur_name, entry.name, 8)){
             if(entry.buffer_size==0)
                 return i;
-            if(memcmp(cur_ext, entry.ext, 3))
+            if(!memcmp(cur_ext, entry.ext, 3))
                 return i;
         }
     }
@@ -176,7 +176,7 @@ int8_t write(struct FAT32DriverRequest request)
     read_clusters(&dir_cur,request.parent_cluster_number,1);
     if(!check_dir_valid(request.parent_cluster_number))
         return 2;
-    if(check_file_exists(request.parent_cluster_number,request))
+    if(is_file_exists(request.parent_cluster_number,request))
        return 1;
     
     //CHECK NULL TERMINATED LATERRRRR TO DO WARNING OK CEK NANTI 
@@ -192,9 +192,10 @@ int8_t write(struct FAT32DriverRequest request)
             continue;
         if(i_start==-1)
             i_start=i;
-        i_before=i;
+        
         if(request.buffer_size==0)
         {
+            i_before=i;
             struct FAT32DirectoryTable temp;
             init_directory_table(&temp, request.name,request.parent_cluster_number);
             write_clusters(&temp,i,1);
@@ -204,11 +205,14 @@ int8_t write(struct FAT32DriverRequest request)
         {
             write_clusters(request.buf+count,i,1);
             request.buf=request.buf;
-            count+=1;
+            
             size_to_allocate-=1;
 
-            if(size_to_allocate!=0)
+            if(count!=0)
                 fat.cluster_map[i_before]=i;
+
+            count+=1;
+            i_before=i;
         }
         
     }
@@ -255,10 +259,10 @@ bool check_dir_valid(uint32_t parent_cluster_number)
     return valid;
 }
 
-bool check_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry)
+bool is_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry)
 {
     int8_t test=dirtable_linear_search(parent_cluster_number, entry);
-    return test==-1;
+    return test!=-1;
 }
 
 void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int16_t entry_cluster)
@@ -296,4 +300,58 @@ void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest 
         }
     }
     write_clusters(&dir_cur,parent_cluster_number,1);
+}
+
+int8_t delete(struct FAT32DriverRequest request)
+{
+    struct FAT32FileAllocationTable fat;
+    read_clusters(&fat,FAT_CLUSTER_NUMBER,1);
+
+    struct FAT32DirectoryTable dir_cur;
+    read_clusters(&dir_cur,request.parent_cluster_number,1);
+    if(!check_dir_valid(request.parent_cluster_number))
+        return 1;
+    if(!is_file_exists(request.parent_cluster_number,request))
+       return 1;
+
+    if(request.buffer_size==0){
+        int16_t ind = dirtable_linear_search(request.parent_cluster_number, request);
+        int32_t cluster_number=dir_cur.table[ind].cluster_low;
+        if(check_dir_has_file(cluster_number))
+            return 2;
+        memset(&dir_cur.table[ind],0,sizeof(struct FAT32DirectoryEntry));
+        memset(&fat.cluster_map[cluster_number],0,sizeof(int32_t)); 
+    }
+    else{
+        int16_t ind = dirtable_linear_search(request.parent_cluster_number, request);
+        int32_t cluster_number=dir_cur.table[ind].cluster_low;
+        memset(&dir_cur.table[ind],0,sizeof(struct FAT32DirectoryEntry));
+        int32_t test;
+        int32_t cur_cluster=cluster_number;
+        test = fat.cluster_map[cur_cluster];
+        while(test!=FAT32_FAT_END_OF_FILE)
+        {
+            memset(&fat.cluster_map[cur_cluster],0,sizeof(int32_t)); 
+            cur_cluster=test;
+            test=fat.cluster_map[cur_cluster];
+        }
+        memset(&fat.cluster_map[cur_cluster],0,sizeof(int32_t)); 
+    }
+    write_clusters(&fat,FAT_CLUSTER_NUMBER,1);
+    write_clusters(&dir_cur,request.parent_cluster_number,1);
+    return 0;
+    return -1;//????
+}
+
+
+bool check_dir_has_file(uint32_t cluster_number)
+{
+    struct FAT32DirectoryTable dir_cur;
+    read_clusters(&dir_cur,cluster_number,1);
+    for(int i=1;i<64;i++){
+        if(dir_cur.table[i].user_attribute==UATTR_NOT_EMPTY)
+            return TRUE;
+        
+    }
+    return FALSE;
 }

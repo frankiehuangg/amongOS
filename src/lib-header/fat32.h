@@ -248,6 +248,7 @@ int8_t delete(struct FAT32DriverRequest request);
 
 int8_t dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32DriverRequest entry);
 bool check_dir_valid(uint32_t parent_cluster_number);
-bool check_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry);
+bool is_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry);
 void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int16_t entry_cluster);
+bool check_dir_has_file(uint32_t cluster_number);
 #endif

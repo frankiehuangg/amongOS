@@ -3,6 +3,11 @@ ENTRY(loader)
 SECTIONS{
     . = 0x00100000;
 
+    .multiboot :
+    {
+        *(.multiboot)
+    }
+    
     .text ALIGN (0x1000) :
     {
         *(.text)

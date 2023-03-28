@@ -27,7 +27,7 @@ void init_directory_table(struct FAT32DirectoryTable *dir_table, char *name, uin
     memset(dir_table->table->ext, 0, 3);
 
     dir_table->table->attribute         = ATTR_SUBDIRECTORY;
-    dir_table->table->user_attribute    = 0;
+    dir_table->table->user_attribute    = UATTR_NOT_EMPTY;
 
     dir_table->table->undelete          = 0;
     dir_table->table->create_time       = 0;
@@ -151,7 +151,6 @@ int8_t read(struct FAT32DriverRequest request)
 */
 int8_t dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32DriverRequest entry)
 {
-    int8_t index;
     struct FAT32DirectoryTable dir_parent;
     read_clusters(&dir_parent,parent_cluster_number,1);
 
@@ -168,36 +167,62 @@ int8_t dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32Driver
     return -1;
 }
 
-
 int8_t write(struct FAT32DriverRequest request)
 {
     struct FAT32FileAllocationTable fat;
     read_clusters(&fat,FAT_CLUSTER_NUMBER,1);
+
+    struct FAT32DirectoryTable dir_cur;
+    read_clusters(&dir_cur,request.parent_cluster_number,1);
     if(!check_dir_valid(request.parent_cluster_number))
         return 2;
     if(check_file_exists(request.parent_cluster_number,request))
-        return 1;
+       return 1;
     
-    // CHECK NULL TERMINATED LATERRRRR TO DO WARNING OK CEK NANTI 
+    //CHECK NULL TERMINATED LATERRRRR TO DO WARNING OK CEK NANTI 
     uint32_t size_to_allocate = request.buffer_size/CLUSTER_SIZE;
-    if(request.buffer_size % CLUSTER_SIZE) size_to_allocate +=1;
+    if(request.buffer_size % CLUSTER_SIZE!=0) size_to_allocate +=1;
     int16_t count=0;
+    int16_t i_before=0;
+    int16_t i_start=-1;
     for(int i=3; i<512;i++)
     {
-        if(!size_to_allocate) break;
-        if(fat.cluster_map[i]!=0)
+        if(!size_to_allocate&&request.buffer_size!=0) break;
+        if(fat.cluster_map[i]!=0 || fat.cluster_map[i]==FAT32_FAT_END_OF_FILE)
             continue;
-        write_clusters(request.buf+count,i,1);
-        count++;
-        size_to_allocate--;
+        if(i_start==-1)
+            i_start=i;
+        i_before=i;
+        if(request.buffer_size==0)
+        {
+            struct FAT32DirectoryTable temp;
+            init_directory_table(&temp, request.name,request.parent_cluster_number);
+            write_clusters(&temp,i,1);
+            break;
+        }
+        else
+        {
+            write_clusters(request.buf+count,i,1);
+            request.buf=request.buf;
+            count+=1;
+            size_to_allocate-=1;
+
+            if(size_to_allocate!=0)
+                fat.cluster_map[i_before]=i;
+        }
+        
     }
-    // TO DO : cek kalo directory penuh
-    struct FAT32DirectoryTable dir_cur;
-    read_clusters(&dir_cur,request.parent_cluster_number,1);
-
-
+    fat.cluster_map[i_before]=FAT32_FAT_END_OF_FILE;
     
+    // TO DO : cek kalo directory penuh
 
+
+    // add to directory
+    add_to_dir_table(request.parent_cluster_number, request, i_start);
+    write_clusters(&fat,1,1);
+
+    return 0;
+    return -1; //ntar
 }
 
 bool check_dir_valid(uint32_t parent_cluster_number)
@@ -236,7 +261,39 @@ bool check_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest
     return test==-1;
 }
 
-void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry)
+void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int16_t entry_cluster)
 {
+    struct FAT32DirectoryTable dir_cur;
+    read_clusters(&dir_cur,parent_cluster_number,1);
 
+    for(int i=1;i<64;i++)
+    {
+        if(dir_cur.table[i].user_attribute!=UATTR_NOT_EMPTY)
+        {
+            if(entry.buffer_size!=0)
+                dir_cur.table[i].attribute=0;
+            else
+                dir_cur.table[i].attribute=ATTR_SUBDIRECTORY;
+
+            if(entry.buffer_size!=0)
+                memcpy(dir_cur.table[i].ext,entry.ext,3);
+            
+            dir_cur.table[i].access_date=0;
+           
+
+            dir_cur.table[i].cluster_high=0;
+            dir_cur.table[i].cluster_low=entry_cluster;
+            dir_cur.table[i].create_date=0;
+            dir_cur.table[i].create_time=0;
+            
+            memcpy(dir_cur.table[i].name,entry.name,8);
+            dir_cur.table[i].filesize=entry.buffer_size;
+            dir_cur.table[i].modified_date=0;
+            dir_cur.table[i].modified_time=0;
+            dir_cur.table[i].undelete=0;
+            dir_cur.table[i].user_attribute=UATTR_NOT_EMPTY;
+            break;
+        }
+    }
+    write_clusters(&dir_cur,parent_cluster_number,1);
 }

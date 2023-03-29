@@ -8,7 +8,7 @@ void main_interrupt_handler(
     __attribute__((unused)) struct InterruptStack info
 ) {
     switch (int_number) {
-        case 33:
+        case 0x21:
             keyboard_isr();
             break;
     }

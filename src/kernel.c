@@ -40,13 +40,12 @@ void kernel_setup(void) {
 	memcpy(request.name, "kano1\0\0\0", 8);
 	write(request);
 	memcpy(request.name, "ikanaide", 8);
-	read_directory(request);
 	delete(request);
 
 	memcpy(request.name, "daijoubu", 8);
 	request.buffer_size = 5 * CLUSTER_SIZE;
 	write(request);
-	
+
 	//struct ClusterBuffer readcbuf;
 	//read_clusters(&readcbuf, ROOT_CLUSTER_NUMBER + 1, 1);
 

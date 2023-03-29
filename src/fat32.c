@@ -2,6 +2,7 @@
 #include "lib-header/stdtype.h"
 #include "lib-header/fat32.h"
 #include "lib-header/stdmem.h"
+#include "lib-header/cmos.h"
 
 const uint8_t fs_signature[BLOCK_SIZE] = {
     'C', 'o', 'u', 'r', 's', 'e', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',  ' ',
@@ -29,10 +30,16 @@ void init_directory_table(struct FAT32DirectoryTable *dir_table, char *name, uin
     dir_table->table->attribute         = ATTR_SUBDIRECTORY;
     dir_table->table->user_attribute    = UATTR_NOT_EMPTY;
 
+    read_rtc();
+    uint16_t create_time = (current_data.hour << 12) | (current_data.minute << 6) | (current_data.second);
+    uint16_t create_date = ((current_data.year - UNIX_START_YEAR) << 9) | (current_data.month << 5) | current_data.day;
+    // Y Y Y Y Y Y Y M M M M D D D D D 
+    // H H H H M M M M M M S S S S S S
+
     dir_table->table->undelete          = 0;
-    dir_table->table->create_time       = 0;
-    dir_table->table->create_date       = 0;
-    dir_table->table->access_date       = 0;
+    dir_table->table->create_time       = create_time;
+    dir_table->table->create_date       = create_date;
+    dir_table->table->access_date       = create_date;
     dir_table->table->cluster_high      = (uint16_t)((parent_dir_cluster >> 16) & 0xFFFF);
 
     dir_table->table->modified_time     = 0;

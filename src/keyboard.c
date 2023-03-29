@@ -25,19 +25,20 @@ const char keyboard_scancode_1_to_ascii_map[256] = {
 
 
 
-static struct KeyboardDriverState keyboard_state = { 0 };
+static struct KeyboardDriverState keyboard_state = {FALSE,FALSE, 0 ,{0} };
 
 
 /* -- Driver Interfaces -- */
 
 // Activate keyboard ISR / start listen keyboard & save to buffer
 void keyboard_state_activate(void){
-    keyboard_state.keyboard_input_on = TRUE;
+	activate_keyboard_interrupt();
+    keyboard_state.keyboard_input_on = 1;
 }
 
 // Deactivate keyboard ISR / stop listening keyboard interrupt
 void keyboard_state_deactivate(void){
-    keyboard_state.keyboard_input_on = FALSE;
+    keyboard_state.keyboard_input_on = 0;
 }
 
 // Get keyboard buffer values - @param buf Pointer to char buffer, recommended size at least KEYBOARD_BUFFER_SIZE
@@ -52,56 +53,89 @@ bool is_keyboard_blocking(void){
     return keyboard_state.keyboard_input_on;
 }
 
+void keyboard_isr(void)
+{
+	if (!keyboard_state.keyboard_input_on)
+		keyboard_state.buffer_index = 0;
+	else
+	{
+		uint8_t	scancode	= in(KEYBOARD_DATA_PORT);
+		char 	mapped_char	= keyboard_scancode_1_to_ascii_map[scancode];
 
-/* -- Keyboard Interrupt Service Routine -- */
+		// TODO: Implement scancode processing
+		keyboard_state.buffer_index = 0;
 
-/**
- * Handling keyboard interrupt & process scancodes into ASCII character.
- * Will start listen and process keyboard scancode if keyboard_input_on.
- * 
- * Will only print printable character into framebuffer.
- * Stop processing when enter key (line feed) is pressed.
- * 
- * Note that, with keyboard interrupt & ISR, keyboard reading is non-blocking.
- * This can be made into blocking input with `while (is_keyboard_blocking());` 
- * after calling `keyboard_state_activate();`
- */
-void keyboard_isr(void){
-    uint8_t scancode = inb(KEYBOARD_DATA_PORT);
 
-    if (keyboard_state.read_extended_mode) {
-        keyboard_state.read_extended_mode = FALSE;
+		uint16_t pos = get_cursor_position();
 
-        switch (scancode) {
-        case EXT_SCANCODE_UP:
-            // Handle arrow up
-            break;
-        case EXT_SCANCODE_DOWN:
-            // Handle arrow down
-            break;
-        case EXT_SCANCODE_LEFT:
-            // Handle arrow left
-            break;
-        case EXT_SCANCODE_RIGHT:
-            // Handle arrow right
-            break;
-        default:
-            // Unknown extended scancode
-            break;
-        }
-    } else if (scancode == EXTENDED_SCANCODE_BYTE) {
-        keyboard_state.read_extended_mode = TRUE;
-    } else {
-        // Handle regular scancode
-        char ascii_char = keyboard_scancode_1_to_ascii_map[scancode];
+		int row = pos / 80;
+		int col = pos % 80;
+		if (scancode == EXTENDED_SCANCODE_BYTE) {
+            keyboard_state.read_extended_mode = TRUE;
+        } else if (keyboard_state.read_extended_mode) {
+            keyboard_state.read_extended_mode = FALSE;
+            switch (scancode) {
+                case EXT_SCANCODE_UP:
+                    if (row>=1){
+                        framebuffer_set_cursor(row-1,col);
+                    }
+                    break;
+                case EXT_SCANCODE_DOWN:
+					if (row<24){
+                        framebuffer_set_cursor(row+1,col);
+					}
+                    break;
+                case EXT_SCANCODE_LEFT:
+                    if(col>=1){
+                        framebuffer_set_cursor(row,col-1);
+                    }
+                    break;
+                case EXT_SCANCODE_RIGHT:
+					if(col<=80){		
+    			        framebuffer_set_cursor(row,col+1);
+					}
+                    break;
+                default:
+                    break;
+			}
+		}
+		else if (mapped_char == '\n')
+		{
+			if (row <24){
+				framebuffer_set_cursor(row + 1, 0);
+				keyboard_state.buffer_index = 0;
+			}
+		}
 
-        if (ascii_char == '\n') {
-            // Stop processing on enter key (line feed)
-            keyboard_state.keyboard_input_on = FALSE;
-        } else if (ascii_char >= ' ' && keyboard_state.buffer_index < KEYBOARD_BUFFER_SIZE) {
-            // Only store printable characters in buffer
-            keyboard_state.keyboard_buffer[keyboard_state.buffer_index++] = ascii_char;
-        }
-    }
-    pic_ack(IRQ_KEYBOARD);
+		else if (mapped_char == '\b')
+		{
+			if (col != 0)
+			{
+				framebuffer_write(row, col-1, 0, 0xF, 0);
+				framebuffer_set_cursor(row, col-1);
+
+				keyboard_state.buffer_index--;
+			}
+		}
+		else if (mapped_char == '\t')
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				framebuffer_write(row, col, ' ', 0xF, 0);
+				framebuffer_set_cursor(row, ++col);
+
+				keyboard_state.keyboard_buffer[keyboard_state.buffer_index] = ' ';
+				keyboard_state.buffer_index++;
+			}
+		}
+		else if (mapped_char != 0)
+		{
+			framebuffer_write(row, col, mapped_char, 0xF, 0);
+			framebuffer_set_cursor(row, col+1);
+
+			keyboard_state.keyboard_buffer[keyboard_state.buffer_index] = mapped_char;
+			keyboard_state.buffer_index++;
+		}
+	}
+	pic_ack(IRQ_KEYBOARD);
 }

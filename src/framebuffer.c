@@ -57,3 +57,21 @@ void framebuffer_clear(void) {
         }
     }
 }
+void update_cursor(int x, int y)
+{
+	uint16_t position = y * 80 + x;
+ 
+	out(0x3D4, 0x0F);
+	out(0x3D5, (uint8_t) (position & 0xFF));
+	out(0x3D4, 0x0E);
+	out(0x3D5, (uint8_t) ((position >> 8) & 0xFF));
+}
+uint16_t get_cursor_position(void)
+{
+    uint16_t pos = 0;
+    out(0x3D4, 0x0F);
+    pos |= in(0x3D5);
+    out(0x3D4, 0x0E);
+    pos |= ((uint16_t)in(0x3D5)) << 8;
+    return pos;
+}

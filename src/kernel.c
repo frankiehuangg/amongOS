@@ -16,14 +16,14 @@ void kernel_setup(void) {
 	pic_remap();
 	initialize_idt();
 
-	// activate_keyboard_interrupt();
+	activate_keyboard_interrupt();
 	framebuffer_clear();
 	framebuffer_set_cursor(0, 0);
 
-	// initialize_filesystem_fat32();
+	initialize_filesystem_fat32();
 
     // while (TRUE){
-    //   keyboard_state_activate();
+      keyboard_state_activate();
     // }
 
 	struct ClusterBuffer cbuf[5];
@@ -31,13 +31,13 @@ void kernel_setup(void) {
 		for (uint32_t j = 0; j < CLUSTER_SIZE; j++)
 			cbuf[i].buf[j] = i + 'a';
 
-	 struct FAT32DriverRequest request = {
-	 	.buf 					= cbuf,
-	 	.name 					= "ikanaide",
-	 	.ext 					= "uwu",
-	 	.parent_cluster_number 	= ROOT_CLUSTER_NUMBER,
-	 	.buffer_size 			= 0
-	 };
+	struct FAT32DriverRequest request = {
+		.buf 					= cbuf,
+		.name 					= "ikanaide",
+		.ext 					= "uwu",
+		.parent_cluster_number 	= ROOT_CLUSTER_NUMBER,
+		.buffer_size 			= 0
+	};
 
 	write(request);
 	memcpy(request.name, "kano1\0\0\0", 8);
@@ -50,8 +50,8 @@ void kernel_setup(void) {
 	request.buffer_size = 5 * CLUSTER_SIZE;
 	write(request);
 	
-	//struct ClusterBuffer readcbuf;
-	//read_clusters(&readcbuf, ROOT_CLUSTER_NUMBER + 1, 1);
+	struct ClusterBuffer readcbuf;
+	read_clusters(&readcbuf, ROOT_CLUSTER_NUMBER + 1, 1);
 
 	for (uint32_t i = 0; i < 5; i++)
 		for (uint32_t j = 0; j < CLUSTER_SIZE; j++)

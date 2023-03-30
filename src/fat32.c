@@ -33,7 +33,7 @@ void init_directory_table(struct FAT32DirectoryTable *dir_table, char *name, uin
     dir_table->table->user_attribute    = UATTR_NOT_EMPTY;
 
     read_rtc();
-    uint16_t create_time = (current_data.hour << 12) | (current_data.minute << 6) | (current_data.second);
+    uint16_t create_time = (current_data.hour << 11) | (current_data.minute << 5) | (current_data.second / 2);
     uint16_t create_date = ((current_data.year - UNIX_START_YEAR) << 9) | (current_data.month << 5) | current_data.day;
     // Y Y Y Y Y Y Y M M M M D D D D D 
     // H H H H M M M M M M S S S S S S

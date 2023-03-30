@@ -50,7 +50,7 @@ void kernel_setup(void) {
 			write(request);
 		}
 	}
-
+	
 	for(int i=0;i<10;i++){
 		for(int j=0;j<10;j++){
 			request.name[6]=i+'a';
@@ -60,6 +60,7 @@ void kernel_setup(void) {
 			delete(request);
 		}
 	}
+	
 	
 	request.name[6]='z';
 	request.name[7]='z';
@@ -96,7 +97,7 @@ void kernel_setup(void) {
 		for (uint32_t j = 0; j < CLUSTER_SIZE; j++)
 			cbuf[i].buf[j] = i + 'h';
 
-	memcpy(request.name, "kano2\0\0\0", 8);
+	memcpy(request.name, "daijoubu", 8);
 	read_directory(request);
 	
 	request.buffer_size = CLUSTER_SIZE;
@@ -104,7 +105,6 @@ void kernel_setup(void) {
 	request.buffer_size = 5 * CLUSTER_SIZE;
 	read(request);
 	
-
 	while(TRUE);
 }
 

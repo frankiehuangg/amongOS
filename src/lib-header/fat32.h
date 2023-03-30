@@ -277,7 +277,7 @@ bool is_file_exists(struct FAT32DriverRequest entry, bool is_folder);
  * @param entry_cluster the cluster placement in storage
  * 
  */
-void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry, int16_t entry_cluster);
+void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry, int32_t entry_cluster);
 
 /**
  * Check whether or not a directory has file
@@ -293,7 +293,15 @@ bool check_dir_has_file(uint32_t cluster_number);
  * @param cluster_number target cluster number directory
  * @return integer denoting the number of clusters a directory span
  */
-int16_t count_dir_length(uint32_t cluster_number);
+int32_t count_dir_length(uint32_t cluster_number);
 
-void create_new_dir(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int32_t entry_cluster, int16_t index);
+/**
+ * Create a new directory
+ *
+ * @param parent_cluster_number target cluster number parent
+ * @param entry request from CRUD operations
+ * @param entry_cluster the cluster placement in storage
+ * @param index index of item in directory table
+ */
+void create_new_dir(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int32_t entry_cluster, int32_t index);
 #endif

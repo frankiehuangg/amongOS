@@ -294,4 +294,6 @@ bool check_dir_has_file(uint32_t cluster_number);
  * @return integer denoting the number of clusters a directory span
  */
 int16_t count_dir_length(uint32_t cluster_number);
+
+void create_new_dir(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int32_t entry_cluster, int16_t index);
 #endif

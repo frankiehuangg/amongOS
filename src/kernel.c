@@ -49,6 +49,17 @@ void kernel_setup(void) {
 			write(request);
 		}
 	}
+
+	for(int i=0;i<10;i++){
+		for(int j=0;j<10;j++){
+			request.name[6]=i+'a';
+			request.name[7]=j+'a';
+			if(i+'a'=='g' && j+'a'=='e')
+				request.name[0]=request.name[0];
+			delete(request);
+		}
+	}
+	/*
 	request.name[6]='z';
 	request.name[7]='z';
 	for (uint32_t i = 0; i < 5; i++)
@@ -64,6 +75,7 @@ void kernel_setup(void) {
 	request.buffer_size=10000;
 	request.parent_cluster_number=2;
 	read_directory(request);
+	*/
 	
 	/*
 	write(request);

@@ -72,6 +72,10 @@ The features listed below is 100% completed and implemented.
 - `initialize_filesystem_fat32` implemented to start CRUD operations
 - CRUD operations implemented (`read_directory`, `read`, `write`, and `delete`) to modify disk image
 
+4. Bonus
+- Unlimited DirectoryEntry to allow a folder having unlimited entries
+- CMOS implemented to add more information on file metadata
+
 ## References
 1. [Intel Manual](https://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html.html)
 2. [wikiosdev](https://wiki.osdev.org/)

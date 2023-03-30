@@ -39,7 +39,7 @@ void kernel_setup(void) {
 		.buffer_size 			= 0
 	};
 
-	/*
+	/*	
 	write(request);
 	request.buffer_size=1;
 	request.parent_cluster_number=3;
@@ -50,7 +50,7 @@ void kernel_setup(void) {
 			write(request);
 		}
 	}
-
+	
 	for(int i=0;i<10;i++){
 		for(int j=0;j<10;j++){
 			request.name[6]=i+'a';
@@ -60,6 +60,7 @@ void kernel_setup(void) {
 			delete(request);
 		}
 	}
+	
 	
 	request.name[6]='z';
 	request.name[7]='z';
@@ -76,9 +77,10 @@ void kernel_setup(void) {
 	request.buffer_size=10000;
 	request.parent_cluster_number=2;
 	read_directory(request);
+	
 	*/
-	
-	
+
+	/*
 	write(request);
 	memcpy(request.name, "kano1\0\0\0", 8);
 	write(request);
@@ -103,8 +105,7 @@ void kernel_setup(void) {
 	read(request);
 	request.buffer_size = 5 * CLUSTER_SIZE;
 	read(request);
-	
-
+	*/
 	while(TRUE);
 }
 

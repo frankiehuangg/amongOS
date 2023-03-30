@@ -62,14 +62,14 @@ struct FAT32FileAllocationTable
  * @param attribute      Will be used exclusively for subdirectory flag / determining this entry is file or folder
  * @param user_attribute If this attribute equal with UATTR_NOT_EMPTY then entry is not empty
  *
- * @param undelete       Unused / optional
- * @param create_time    Unused / optional
- * @param create_date    Unused / optional
- * @param access_time    Unused / optional
+ * @param undelete       Unused 
+ * @param create_time    The time file/directory created
+ * @param create_date    The date file/directory created
+ * @param access_date    The most recent date file/directory accessed
  * @param cluster_high   Upper 16-bit of cluster number
  *
- * @param modified_time  Unused / optional
- * @param modified_date  Unused / optional
+ * @param modified_time  The most recent time file/directory modified
+ * @param modified_date  The most recent date file/directory modified
  * @param cluster_low    Lower 16-bit of cluster number
  * @param filesize       Filesize of this file, if this is directory / folder, filesize is 0
  */

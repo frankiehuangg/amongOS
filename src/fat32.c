@@ -112,12 +112,12 @@ int8_t read_directory(struct FAT32DriverRequest request)
     // Find file in directory
     struct DirCoordinate coordinate = dirtable_linear_search(request,TRUE);
     int16_t ind = coordinate.index;
-    int32_t cluster_number=coordinate.cluster_number;
+    int32_t directory_cluster_number=coordinate.cluster_number;
     if(ind==-1)
         return 2;
 
-    // get state info
-    read_clusters(&driver_state.dir_table_buf,cluster_number,1);
+    // get state info 
+    read_clusters(&driver_state.dir_table_buf,directory_cluster_number,1);
     read_clusters(&driver_state.fat_table,FAT_CLUSTER_NUMBER,1);
 
     // get entry info
@@ -152,6 +152,12 @@ int8_t read_directory(struct FAT32DriverRequest request)
             count++;
         }
         read_clusters(request.buf+count*CLUSTER_SIZE, cur_cluster, 1);
+
+        // update last accessed
+        read_rtc();
+        uint16_t cur_date = ((current_data.year - UNIX_START_YEAR) << 9) | (current_data.month << 5) | current_data.day;
+        driver_state.dir_table_buf.table[ind].access_date=cur_date;
+        write_clusters(&driver_state.dir_table_buf,directory_cluster_number,1);
         return 0;
     }
     // unknown error
@@ -168,9 +174,9 @@ int8_t read(struct FAT32DriverRequest request)
         return 3;
 
     // get state
-    read_clusters(&driver_state.dir_table_buf,directory_cluster_number,1);
     read_clusters(&driver_state.fat_table,FAT_CLUSTER_NUMBER,1);
-
+    read_clusters(&driver_state.dir_table_buf,directory_cluster_number,1);
+    
     // get entry
     struct FAT32DirectoryEntry entry;
     entry = driver_state.dir_table_buf.table[ind];
@@ -201,6 +207,13 @@ int8_t read(struct FAT32DriverRequest request)
             count++;
         }
         read_clusters(request.buf+count*CLUSTER_SIZE,cur_cluster,1);
+
+        //set last date accessed
+        read_rtc();
+        uint16_t cur_date = ((current_data.year - UNIX_START_YEAR) << 9) | (current_data.month << 5) | current_data.day;
+        driver_state.dir_table_buf.table[ind].access_date=cur_date;
+        write_clusters(&driver_state.dir_table_buf,directory_cluster_number,1);
+        
 
         return 0;
     }
@@ -360,9 +373,14 @@ int8_t delete(struct FAT32DriverRequest request)
 
 struct DirCoordinate dirtable_linear_search(struct FAT32DriverRequest entry,bool is_folder)
 {
-    //using local state to prevent clashes
+    // get (locally declared) state + update last accessed
+    
     struct FAT32DirectoryTable dir_parent;
     read_clusters(&dir_parent,entry.parent_cluster_number,1);
+    read_rtc();
+    uint16_t cur_date = ((current_data.year - UNIX_START_YEAR) << 9) | (current_data.month << 5) | current_data.day;
+    dir_parent.table->access_date=cur_date;
+    write_clusters(&dir_parent,entry.parent_cluster_number,1);
     struct FAT32FileAllocationTable fat;
     read_clusters(&fat,FAT_CLUSTER_NUMBER,1);
 
@@ -565,18 +583,21 @@ void create_new_dir(uint32_t parent_cluster_number, struct FAT32DriverRequest en
 
     if(entry.buffer_size!=0)
         memcpy(dir_cur.table[index].ext,entry.ext,3);
-    
-    dir_cur.table[index].access_date=0;
 
+    read_rtc();
+    uint16_t create_time = (current_data.hour << 11) | (current_data.minute << 5) | (current_data.second / 2);
+    uint16_t create_date = ((current_data.year - UNIX_START_YEAR) << 9) | (current_data.month << 5) | current_data.day;
+
+    dir_cur.table[index].access_date=0;
     dir_cur.table[index].cluster_high=0;
     dir_cur.table[index].cluster_low=entry_cluster;
-    dir_cur.table[index].create_date=0;
-    dir_cur.table[index].create_time=0;
+    dir_cur.table[index].create_date=create_date;
+    dir_cur.table[index].create_time=create_time;
     
     memcpy(dir_cur.table[index].name,entry.name,8);
     dir_cur.table[index].filesize=entry.buffer_size;
-    dir_cur.table[index].modified_date=0;
-    dir_cur.table[index].modified_time=0;
+    dir_cur.table[index].modified_date=create_date;
+    dir_cur.table[index].modified_time=create_time;
     dir_cur.table[index].undelete=0;
     dir_cur.table[index].user_attribute=UATTR_NOT_EMPTY;
 

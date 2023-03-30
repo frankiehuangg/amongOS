@@ -1,6 +1,6 @@
 # amongos
 
-https://github.com/Sister20/if2230-2023-amongos/.github/assets/preview.mp4
+https://user-images.githubusercontent.com/86491005/228898592-f57b4f83-12bb-4f21-9e30-32d327bd104f.mp4
 
 ## Group Members
 
@@ -23,6 +23,10 @@ https://github.com/Sister20/if2230-2023-amongos/.github/assets/preview.mp4
 1. Install all of the requirements
 
 ```
+
+https://user-images.githubusercontent.com/86491005/228898577-21a8cff6-7f53-4f61-9399-02e858bc38fa.mp4
+
+
 sudo apt update
 sudo apt install gcc nasm make qemu-system-x86 genisoimage
 ```

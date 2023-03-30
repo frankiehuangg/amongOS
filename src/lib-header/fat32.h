@@ -45,8 +45,10 @@ struct ClusterBuffer {
     uint8_t buf[CLUSTER_SIZE];
 } __attribute__((packed));
 
-
-
+struct DirCoordinate {
+    int32_t index;
+    int32_t cluster_number;
+}__attribute__((packed));
 
 
 /* -- FAT32 Data Structures -- */
@@ -246,9 +248,10 @@ int8_t write(struct FAT32DriverRequest request);
  */
 int8_t delete(struct FAT32DriverRequest request);
 
-int32_t dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32DriverRequest entry);
+struct DirCoordinate dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32DriverRequest entry, bool is_folder);
 bool check_dir_valid(uint32_t parent_cluster_number);
-bool is_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry);
+bool is_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry, bool is_folder);
 void add_to_dir_table(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,int16_t entry_cluster);
 bool check_dir_has_file(uint32_t cluster_number);
+int16_t count_dir_length(uint32_t cluster_number);
 #endif

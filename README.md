@@ -1,6 +1,6 @@
 # amongos
 
-![](assets/preview.mp4)
+https://github.com/Sister20/if2230-2023-amongos/.github/assets/preview.mp4
 
 ## Group Members
 

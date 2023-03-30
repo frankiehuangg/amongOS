@@ -33,12 +33,13 @@ void kernel_setup(void) {
 
 	struct FAT32DriverRequest request = {
 		.buf 					= cbuf,
-		.name 					= "bbbbbb\0\0",
+		.name 					= "ikanaide",
 		.ext 					= "uwu",
 		.parent_cluster_number 	= ROOT_CLUSTER_NUMBER,
 		.buffer_size 			= 0
 	};
 
+	/*
 	write(request);
 	request.buffer_size=1;
 	request.parent_cluster_number=3;
@@ -59,7 +60,7 @@ void kernel_setup(void) {
 			delete(request);
 		}
 	}
-	/*
+	
 	request.name[6]='z';
 	request.name[7]='z';
 	for (uint32_t i = 0; i < 5; i++)
@@ -77,7 +78,7 @@ void kernel_setup(void) {
 	read_directory(request);
 	*/
 	
-	/*
+	
 	write(request);
 	memcpy(request.name, "kano1\0\0\0", 8);
 	write(request);
@@ -95,11 +96,14 @@ void kernel_setup(void) {
 		for (uint32_t j = 0; j < CLUSTER_SIZE; j++)
 			cbuf[i].buf[j] = i + 'h';
 
+	memcpy(request.name, "kano2\0\0\0", 8);
+	read_directory(request);
+	
 	request.buffer_size = CLUSTER_SIZE;
 	read(request);
 	request.buffer_size = 5 * CLUSTER_SIZE;
 	read(request);
-	*/
+	
 
 	while(TRUE);
 }

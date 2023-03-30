@@ -127,7 +127,7 @@ int16_t count_dir_length(uint32_t cluster_number){
 
 int8_t read_directory(struct FAT32DriverRequest request)
 {
-    struct DirCoordinate coordinate = dirtable_linear_search(request.parent_cluster_number, request,TRUE);
+    struct DirCoordinate coordinate = dirtable_linear_search(request,TRUE);
     int16_t ind = coordinate.index;
     int32_t cluster_number=coordinate.cluster_number;
 
@@ -171,7 +171,7 @@ int8_t read_directory(struct FAT32DriverRequest request)
 
 int8_t read(struct FAT32DriverRequest request)
 {
-    struct DirCoordinate coordinate = dirtable_linear_search(request.parent_cluster_number, request,FALSE);
+    struct DirCoordinate coordinate = dirtable_linear_search(request,FALSE);
     int16_t ind = coordinate.index;
     int32_t cluster_number=coordinate.cluster_number;
     if(ind==-1)
@@ -211,16 +211,16 @@ int8_t read(struct FAT32DriverRequest request)
     return -1;//gatau dah???
 }
 
-struct DirCoordinate dirtable_linear_search(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,bool is_folder)
+struct DirCoordinate dirtable_linear_search(struct FAT32DriverRequest entry,bool is_folder)
 {
     struct FAT32DirectoryTable dir_parent;
-    read_clusters(&dir_parent,parent_cluster_number,1);
+    read_clusters(&dir_parent,entry.parent_cluster_number,1);
 
     struct FAT32FileAllocationTable fat;
     read_clusters(&fat,FAT_CLUSTER_NUMBER,1);
 
     int32_t test;
-    int32_t cur_cluster=parent_cluster_number;
+    int32_t cur_cluster=entry.parent_cluster_number;
     int32_t count=0;
 
     struct DirCoordinate ret;
@@ -284,7 +284,7 @@ int8_t write(struct FAT32DriverRequest request)
         is_folder=TRUE;
     if(!check_dir_valid(request.parent_cluster_number))
         return 2;
-    if(is_file_exists(request.parent_cluster_number,request,is_folder))
+    if(is_file_exists(request,is_folder))
         return 1;
     
     uint32_t size_to_allocate = request.buffer_size/CLUSTER_SIZE;
@@ -371,10 +371,10 @@ bool check_dir_valid(uint32_t parent_cluster_number)
     */
 }
 
-bool is_file_exists(uint32_t parent_cluster_number, struct FAT32DriverRequest entry,bool is_folder)
+bool is_file_exists(struct FAT32DriverRequest entry,bool is_folder)
 {
     struct DirCoordinate test;
-    test=dirtable_linear_search(parent_cluster_number, entry, is_folder);
+    test=dirtable_linear_search(entry, is_folder);
     return test.index!=-1;
 }
 
@@ -509,11 +509,11 @@ int8_t delete(struct FAT32DriverRequest request)
         is_folder=TRUE;
     if(!check_dir_valid(request.parent_cluster_number))
         return 1;
-    if(!is_file_exists(request.parent_cluster_number,request,is_folder))
+    if(!is_file_exists(request,is_folder))
        return 1;
 
     if(request.buffer_size==0){
-        struct DirCoordinate coordinate = dirtable_linear_search(request.parent_cluster_number, request,TRUE);
+        struct DirCoordinate coordinate = dirtable_linear_search(request,TRUE);
         int16_t ind = coordinate.index;
         int32_t cluster_number=coordinate.cluster_number;
         if(check_dir_has_file(cluster_number))
@@ -535,7 +535,7 @@ int8_t delete(struct FAT32DriverRequest request)
         //write_clusters(cbuf.buf,cluster_number,1);
     }
     else{
-        struct DirCoordinate coordinate = dirtable_linear_search(request.parent_cluster_number, request,FALSE);
+        struct DirCoordinate coordinate = dirtable_linear_search(request,FALSE);
         int16_t ind = coordinate.index;
         int32_t cluster_number=coordinate.cluster_number;
         memset(&dir_cur.table[ind],0,sizeof(struct FAT32DirectoryEntry));

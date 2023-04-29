@@ -22,7 +22,7 @@ void command_cd(int argc, char **argv)
     }        
 
     // Create a copy of argv[i] since strtok changes string
-    char path[KEYBOARD_BUFFER_SIZE];
+    char path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(path, argv[1], strlen(argv[1]));
 
     // Get final index of path, set is_changing to true to change driver_state.path's value
@@ -92,27 +92,33 @@ void command_ls(int argc, char **argv)
         return;
     }
     // Create a copy of argv[i] since strtok changes string
-    char path[KEYBOARD_BUFFER_SIZE];
+    char path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(path, argv[1], strlen(argv[1]));
 
     // Set final cluster; i.e. the cluster number to read from
     uint32_t final_cluster;
-    if (argc == 1)
-        final_cluster = shell_state.current_cluster_number;
-    else
-        final_cluster = parse_pathing(path, FALSE, FALSE);
 
-    // Split file name        
-    char *full_name;
-    char *token = strtok(argv[1], " /");
-    while (token != NULL)
-    {
-        full_name = token;
-        token = strtok(NULL, " /");
-    }
-
+    char *full_name = {0};
     char name[8]    = {0};
     char ext[3]     = {0};
+
+    if (argc == 1)
+    {
+        final_cluster = shell_state.current_cluster_number;
+        memcpy(full_name, argv[1], strlen(argv[1]));
+    }
+    else
+    {
+        final_cluster = parse_pathing(path, FALSE, FALSE);
+
+        // Split file name        
+        char *token = strtok(argv[1], " /");
+        while (token != NULL)
+        {
+            full_name = token;
+            token = strtok(NULL, " /");
+        }
+    }
 
     uint32_t i = 0;
     uint32_t index = 0;
@@ -204,7 +210,7 @@ void command_mkdir(int argc, char **argv)
     for (int i = 1; i < argc; i++)
     {
         // Create a copy of argv[i] since strtok changes string
-        char path[KEYBOARD_BUFFER_SIZE];
+        char path[KEYBOARD_BUFFER_SIZE] = {0};
         memcpy(path, argv[i], strlen(argv[i]));
 
         // Create a copyl cluster
@@ -280,7 +286,7 @@ void command_cat(int argc, char **argv)
     }
 
     // Create a copy of argv[i] since strtok changes string
-    char path[KEYBOARD_BUFFER_SIZE];
+    char path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(path, argv[1], strlen(argv[1]));
     
     // Find file's cluster number
@@ -398,7 +404,7 @@ void command_cp(int argc, char **argv)
     }
 
     // Create a copy of argv[i] since strtok changes string
-    char first_path[KEYBOARD_BUFFER_SIZE];
+    char first_path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(first_path, argv[1], strlen(argv[1]));
     
     // Find file's cluster number
@@ -439,7 +445,7 @@ void command_cp(int argc, char **argv)
     }
 
     // Create another copy of argv[i] since strtok changes string
-    char second_path[KEYBOARD_BUFFER_SIZE];
+    char second_path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(second_path, argv[2], strlen(argv[2]));
     
     // Find file's cluster number
@@ -561,7 +567,7 @@ void command_rm(int argc, char **argv)
     }
 
     // Create a copy of argv[i] since strtok changes string
-    char path[KEYBOARD_BUFFER_SIZE];
+    char path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(path, argv[1], strlen(argv[1]));
     
     // Find file's cluster number
@@ -670,7 +676,7 @@ void command_mv(int argc, char **argv)
     }
 
     // Create a copy of argv[i] since strtok changes string
-    char path[KEYBOARD_BUFFER_SIZE];
+    char path[KEYBOARD_BUFFER_SIZE] = {0};
     memcpy(path, argv[1], strlen(argv[1]));
     
     // Find file's cluster number
@@ -729,10 +735,10 @@ void command_mv(int argc, char **argv)
 
     syscall(0, (uint32_t) &request, (uint32_t) &shell_state.retcode, 0);
 
-    if (shell_state.retcode == 3)
+    if (shell_state.retcode == 3)       // Not found
     {
-        puts("cat: ", BIOS_COLOR_WHITE);
-        puts(argv[1], BIOS_COLOR_WHITE);
+        puts("mv: ", BIOS_COLOR_WHITE);
+        puts(name, BIOS_COLOR_WHITE);
         puts(": No such file or directory\n", BIOS_COLOR_WHITE);
         return;
     }

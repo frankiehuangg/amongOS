@@ -50,10 +50,12 @@ int main(void)
                 command_cp(argc, argv);
             else if (!memcmp(argv[0], "rm", command_length))
                 command_rm(argc, argv);
-            // else if (!memcmp(argv[0], "mv", command_length))
-            //     command_mv(argc, argv);
-            // else if (!memcmp(argv[0], "whereis", command_length))
-            //     command_whereis(argc, argv);
+            else if (!memcmp(argv[0], "mv", command_length))
+                command_mv(argc, argv);
+            else if (!memcmp(argv[0], "whereis", command_length))
+                command_whereis(argc, argv);
+            else if (!memcmp(argv[0], "clear", command_length))
+                syscall(10, 0, 0, 0);
             else
             {
                 puts(argv[0], BIOS_COLOR_WHITE);

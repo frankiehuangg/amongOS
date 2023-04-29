@@ -71,6 +71,8 @@ user-shell:
 	@$(ASM) $(AFLAGS) $(SOURCE_FOLDER)/user-entry.s -o user-entry.o
 
 	@$(CC) $(CFLAGS) -fno-pie $(SOURCE_FOLDER)/user-shell.c -o user-shell.o
+	@$(CC) $(CFLAGS) -fno-pie $(SOURCE_FOLDER)/user-commands.c -o user-commands.o
+	@$(CC) $(CFLAGS) -fno-pie $(SOURCE_FOLDER)/user-helper.c -o user-helper.o
 	@$(CC) $(CFLAGS) -fno-pie $(SOURCE_FOLDER)/stdmem.c -o stdmem.o
 
 	@$(LIN) -T $(SOURCE_FOLDER)/user-linker.ld -melf_i386 \

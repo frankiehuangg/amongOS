@@ -58,7 +58,6 @@ struct IDTGate {
  *
  * @param table Fixed-width array of IDTGate with size IDT_MAX_ENTRY_COUNT
  */
-// TODO : Implement
 struct InterruptDescriptorTable 
 {
     /* data */

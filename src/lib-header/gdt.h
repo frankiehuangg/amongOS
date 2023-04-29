@@ -42,7 +42,6 @@ struct SegmentDescriptor {
 	uint8_t descriptor_level: 2;
 	uint8_t present			: 1;
 
-    // TODO : Continue GDT definition
 	// Last 16-bit (Bit 48 to 63)
 	uint8_t segment_high	: 4;
 	uint8_t available		: 1;
@@ -74,7 +73,10 @@ struct GDTR {
 } __attribute__((packed));
 
 
-// Set GDT_TSS_SELECTOR with proper TSS values, accessing _interrupt_tss_entry
+/**
+ * Set GDT_TSS_SELECTOR with proper TSS values, accessing _interrupt_tss_entry
+ * 
+ */ 
 void gdt_install_tss(void);
 
 #endif

@@ -105,20 +105,30 @@ struct TSSEntry {
 }__attribute__((packed));
 
 
-// Set kernel stack in TSS
+/**
+ * Set kernel stack in TSS
+ */ 
 void set_tss_kernel_current_stack(void);
 
-
-// Activate PIC mask for keyboard only
+/**
+ * Activate PIC mask for keyboard only
+ */  
 void activate_keyboard_interrupt(void);
 
-// I/O port wait, around 1-4 microsecond, for I/O synchronization purpose
+/**
+ * I/O port wait, around 1-4 microsecond, for I/O synchronization purpose
+ */ 
 void io_wait(void);
 
-// Send ACK to PIC - @param irq Interrupt request number destination, note: this function already include PIC1_OFFSET
+/**
+ * Send ACK to PIC 
+ * @param irq Interrupt request number destination, note: this function already include PIC1_OFFSET
+ */ 
 void pic_ack(uint8_t irq);
 
-// Shift PIC interrupt number to PIC1_OFFSET and PIC2_OFFSET (master and slave)
+/**
+ * Shift PIC interrupt number to PIC1_OFFSET and PIC2_OFFSET (master and slave)
+ */  
 void pic_remap(void);
 
 /**
@@ -135,6 +145,12 @@ void pic_remap(void);
  */
 void main_interrupt_handler(struct CPURegister cpu, uint32_t int_number, struct InterruptStack info);
 
+/**
+ * System Call Function
+ * 
+ * @param cpu        CPU register when interrupt is raised
+ * @param info       Information about interrupt that pushed automatically by CPU
+ */
 void syscall(struct CPURegister cpu, __attribute__((unused)) struct InterruptStack info);
 
 #endif

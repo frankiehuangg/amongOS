@@ -42,12 +42,36 @@ void framebuffer_set_cursor(uint8_t r, uint8_t c);
  */
 void framebuffer_clear(void);
 
+/** 
+ * create the most ssusss..............fdsfakjapgmaAAAAAAAAAAAHHHHH HLEP
+ * 
+ */
 void framebuffer_among_us(void);
 
-void update_cursor(int x, int y);//Update cursor
-uint16_t get_cursor_position(void);//Get current cursor position
+/** 
+ * Update cursor to the given x and y position
+ * @param x x position of cursor
+ * @param y y position of cursor
+ */
+void update_cursor(int x, int y);
 
+/** 
+ * Get the current cursor position
+ * 
+ */
+uint16_t get_cursor_position(void);
+
+/** 
+ * Shift the framebuffer
+ * 
+ */
 void framebuffer_shift(void);
 
+/** 
+ * Print string to shell
+ * @param buffer buffer containing content to be printed
+ * @param length length of contents to be printed
+ * @param text_color color of content to be printed
+ */
 void puts(char* buffer, uint32_t length, uint32_t text_color);
 #endif

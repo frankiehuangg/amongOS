@@ -102,7 +102,7 @@ uint32_t parse_pathing(char *path, uint8_t is_changing, uint8_t ignore_last)
 
     uint32_t limit;
     if (ignore_last)
-        limit = len - 1;
+        limit = len == 0 ? 0 : len - 1;
     else
         limit = len;
 

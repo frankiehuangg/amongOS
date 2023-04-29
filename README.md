@@ -102,6 +102,8 @@ The features listed below is 100% completed and implemented.
 
 4. Bonus
 - Relative Pathing
+- `clear` command to clear the shell terminal
+- added ascii art at startup
 
 Note : Unlimited Directory redacted from Milestone 3 onwards
 

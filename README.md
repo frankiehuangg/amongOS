@@ -69,8 +69,31 @@ The features listed below is 100% completed and implemented.
 - CRUD operations implemented (`read_directory`, `read`, `write`, and `delete`) to modify disk image
 
 4. Bonus
-- Unlimited DirectoryEntry to allow a folder having unlimited entries
+- Unlimited DirectoryEntry to allow a folder having unlimited entries 
 - CMOS implemented to add more information on file metadata
+
+### Milestone 3
+1. Paging
+- Paging Data Structures implemented
+- Higher Half Kernel implemented
+- Paging activated
+
+2. User Mode
+- Inserter implemented
+- User GDT & Task State Segment implemented
+- Simple Memory Allocator implemented
+- Simple User Program implemented
+- Launching User Mode implemented
+
+3. Shell
+- System Calls implemented according to shell's needs
+- Shell implemented
+- Built-in Utility Command
+
+4. Bonus
+- Relative Pathing
+
+Note : Unlimited Directory redacted from Milestone 3 onwards
 
 ## References
 1. [Intel Manual](https://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html.html)

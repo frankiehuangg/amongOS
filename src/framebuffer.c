@@ -75,3 +75,68 @@ uint16_t get_cursor_position(void)
     pos |= ((uint16_t)in(0x3D5)) << 8;
     return pos;
 }
+void framebuffer_shift(void)
+{
+	volatile uint16_t *buf1;
+	volatile uint16_t *buf2;
+	
+	for (uint32_t i = 0; i < 25; i++)
+	{
+		for (uint32_t j = 0; j < 80; j++)
+		{
+			buf1 = (volatile uint16_t *)MEMORY_FRAMEBUFFER + (i * 80 + j);
+			buf2 = (volatile uint16_t *)MEMORY_FRAMEBUFFER + ((i + 1) * 80 + j);
+			*buf1 = *buf2;
+		}
+	}
+
+	for (uint32_t i = 0; i < 80; i++)
+		framebuffer_write(24, i, 0, 0x7, 0);
+	
+	out(CURSOR_PORT_CMD, 0x0E);
+	int pos = (in(CURSOR_PORT_DATA) << 8);
+	out(CURSOR_PORT_CMD, 0x0F);
+	pos = pos | in(CURSOR_PORT_DATA);
+
+	uint8_t row = pos / 80;
+	
+	framebuffer_set_cursor(row, 0);
+}
+
+void puts(char* buffer, uint32_t length, uint32_t text_color)
+{
+	for (uint32_t i = 0; i < length; i++)
+	{
+		out(CURSOR_PORT_CMD, 0x0E);
+		int pos = (in(CURSOR_PORT_DATA) << 8);
+		out(CURSOR_PORT_CMD, 0x0F);
+		pos = pos | in(CURSOR_PORT_DATA);
+
+		uint8_t row = pos / 80;
+		uint8_t col = pos % 80;
+
+		uint8_t bg = (text_color >> 4) & 0xF;
+		uint8_t fg = text_color & 0xF;
+
+		if (buffer[i] == '\n')
+		{
+			if (row == 24)
+				framebuffer_shift();
+			else 
+				framebuffer_set_cursor(row+1, 0);
+		}
+		else if (buffer[i] == '\b')
+		{
+			if (col != 0)
+			{
+				framebuffer_write(row, col-1, 0, 0xF, 0x0);
+				framebuffer_set_cursor(row, col-1);
+			}
+		}
+		else if (buffer[i] != '\0')
+		{
+			framebuffer_write(row, col, buffer[i], fg, bg);
+			framebuffer_set_cursor(row, col+1);
+		}
+	}
+}

@@ -45,4 +45,7 @@ void framebuffer_clear(void);
 void update_cursor(int x, int y);//Update cursor
 uint16_t get_cursor_position(void);//Get current cursor position
 
+void framebuffer_shift(void);
+
+void puts(char* buffer, uint32_t length, uint32_t text_color);
 #endif

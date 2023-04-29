@@ -5,6 +5,10 @@
 
 #define GDT_MAX_ENTRY_COUNT 32
 
+#define GDT_USER_CODE_SEGMENT_SELECTOR  0x18
+#define GDT_USER_DATA_SEGMENT_SELECTOR  0x20
+#define GDT_TSS_SELECTOR                0x28
+
 extern struct GDTR _gdt_gdtr;
 
 /**
@@ -12,38 +16,40 @@ extern struct GDTR _gdt_gdtr;
  * Struct defined exactly as Intel Manual Segment Descriptor definition (Figure 3-8 Segment Descriptor).
  * Manual can be downloaded at www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html/ 
  *
- * @param segment_low  16-bit lower-bit segment limit
- * @param base_low     16-bit lower-bit base address
- * @param base_mid     8-bit middle-bit base address
- * @param type_bit     4-bit contain type flags
- * @param non_system   1-bit contain system
- * @param dpl          2-bit dpl
- * @param p_flag       1-bit contain p flag
- * @param seg_high     4-bit higher-bit segment limit
- * @param avl_bit      1-bit available bit
- * @param l_flag       1-bit contain l flag
- * @param db_flag      1-bit contain db flag
- * @param g_flag       1-bit contain g flag
- * @param base_high    8-bit higher-bit base address
+ * @param segment_low			16-bit lower-bit segment limit
+ * @param base_low				16-bit lower-bit base address
+ * @param base_mid				8-bit middle-bit base address
+ * @param type_bit				4-bit contain type flags
+ * @param non_system			1-bit contain system
+ * @param descriptor_level		2-bit contain privilege level of the segment
+ * @param present				1-bit indicates whether segment is present in memory
+ * @param segment_high			4-bit segment limit
+ * @param available				1-bit indicates availability for use by system software
+ * @l_flag						1-bit indicates a code contains native 64-bit code
+ * @default_flag				1-bit contains different function depending on descriptor type
+ * @granularity					1-bit contains the scaling of the segment limit field
+ * @base_high					8-bit upper-bit base address
  */
 struct SegmentDescriptor {
     // First 32-bit
     uint16_t segment_low;
     uint16_t base_low;
 
-    // Next 32-bit
+    // Next 16-bit (Bit 32 to 47)
     uint8_t base_mid;
-    uint8_t type_bit   : 4;
-    uint8_t non_system : 1;
-    uint8_t dpl        : 2;
-    uint8_t p_flag     : 1;
-    uint8_t seg_high   : 4;
-    uint8_t avl_bit    : 1;
-    uint8_t l_flag     : 1;
-    uint8_t db_flag    : 1;
-    uint8_t g_flag     : 1;
-    uint8_t base_high;
+    uint8_t type_bit		: 4;
+    uint8_t non_system		: 1;
+	uint8_t descriptor_level: 2;
+	uint8_t present			: 1;
 
+    // TODO : Continue GDT definition
+	// Last 16-bit (Bit 48 to 63)
+	uint8_t segment_high	: 4;
+	uint8_t available		: 1;
+	uint8_t l_flag			: 1;
+	uint8_t default_flag	: 1;
+	uint8_t granularity		: 1;
+	uint8_t base_high;
 } __attribute__((packed));
 
 /**
@@ -66,5 +72,9 @@ struct GDTR {
     uint16_t                     size;
     struct GlobalDescriptorTable *address;
 } __attribute__((packed));
+
+
+// Set GDT_TSS_SELECTOR with proper TSS values, accessing _interrupt_tss_entry
+void gdt_install_tss(void);
 
 #endif

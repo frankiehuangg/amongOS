@@ -33,7 +33,7 @@ void kernel_setup(void) {
 	struct ClusterBuffer c;
 	memset(&c, 0, CLUSTER_SIZE);
 
-	char message[26] = "When the impostor is sus!\n";
+	char message[130] = "When the impostor is sus!\ndun dun dun dun dun dun dun dun dun dun\nbum bum\ndun dun dun dun dun dun dun\ndun dun dun\ndun dun dun dun\n";
 	memcpy(&c, message, sizeof(message));
 
 	struct FAT32DriverRequest write_request = {

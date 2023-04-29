@@ -17,6 +17,8 @@ void command_rm(int argc, char **argv);
 
 void command_mv(int argc, char **argv);
 
+void search_recursive(uint32_t cluster_number, char *name, char *ext, char *path);
+
 void command_whereis(int argc, char **argv);
 
 #endif

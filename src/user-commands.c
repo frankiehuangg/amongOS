@@ -28,15 +28,24 @@ void command_cd(int argc, char **argv)
     // Get final index of path, set is_changing to true to change driver_state.path's value
     uint32_t final_cluster = parse_pathing(path, TRUE, FALSE);
 
+    // Split file name        
+    char *full_name;
+    char *token = strtok(argv[1], " /");
+    while (token != NULL)
+    {
+        full_name = token;
+        token = strtok(NULL, " /");
+    }
+
     char name[8]    = {0};
     char ext[3]     = {0};
 
     uint32_t i = 0;
     uint32_t index = 0;
     uint32_t is_name = TRUE;
-    while (i < strlen(argv[1]))
+    while (i < strlen(full_name))
     {
-        if (argv[1][i] == '.')
+        if (full_name[i] == '.')
         {
             index = 0;
             is_name = FALSE;
@@ -44,9 +53,9 @@ void command_cd(int argc, char **argv)
         else 
         {
             if (is_name)
-                name[index] = argv[1][i];
+                name[index] = full_name[i];
             else 
-                ext[index] = argv[1][i];   
+                ext[index] = full_name[i];   
 
             index++;
         }        
@@ -93,15 +102,24 @@ void command_ls(int argc, char **argv)
     else
         final_cluster = parse_pathing(path, FALSE, FALSE);
 
+    // Split file name        
+    char *full_name;
+    char *token = strtok(argv[1], " /");
+    while (token != NULL)
+    {
+        full_name = token;
+        token = strtok(NULL, " /");
+    }
+
     char name[8]    = {0};
     char ext[3]     = {0};
 
     uint32_t i = 0;
     uint32_t index = 0;
     uint32_t is_name = TRUE;
-    while (i < strlen(argv[1]))
+    while (i < strlen(full_name))
     {
-        if (argv[1][i] == '.')
+        if (full_name[i] == '.')
         {
             index = 0;
             is_name = FALSE;
@@ -109,9 +127,9 @@ void command_ls(int argc, char **argv)
         else 
         {
             if (is_name)
-                name[index] = argv[1][i];
+                name[index] = full_name[i];
             else 
-                ext[index] = argv[1][i];   
+                ext[index] = full_name[i];   
 
             index++;
         }        

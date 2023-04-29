@@ -70,27 +70,27 @@ void main_interrupt_handler(struct CPURegister cpu, uint32_t int_number, struct 
 
 void syscall(struct CPURegister cpu, __attribute__((unused)) struct InterruptStack info)
 {
-	if (cpu.eax == 0)
+	if (cpu.eax == 0)		// read
 	{
 		struct FAT32DriverRequest request = *(struct FAT32DriverRequest*) cpu.ebx;
 		*((int8_t*) cpu.ecx) = read(request);
 	}
-	else if (cpu.eax == 1)
+	else if (cpu.eax == 1)	// read_directory
 	{
 		struct FAT32DriverRequest request = *(struct FAT32DriverRequest*) cpu.ebx;
 		*((int8_t*) cpu.ecx) = read_directory(request);
 	}
-	else if (cpu.eax == 2)
+	else if (cpu.eax == 2)	// write
 	{
 		struct FAT32DriverRequest request = *(struct FAT32DriverRequest*) cpu.ebx;
 		*((int8_t*) cpu.ecx) = write(request);
 	}
-	else if (cpu.eax == 3)
+	else if (cpu.eax == 3)	// delete
 	{
 		struct FAT32DriverRequest request = *(struct FAT32DriverRequest*) cpu.ebx;
 		*((int8_t*) cpu.ecx) = delete(request);
 	}
-	else if (cpu.eax == 4)
+	else if (cpu.eax == 4)	// keyboard
 	{
 		keyboard_state_activate();
 		__asm__("sti"); // Due IRQ is disabled when main_interrupt_handler() called
@@ -101,9 +101,26 @@ void syscall(struct CPURegister cpu, __attribute__((unused)) struct InterruptSta
 		get_keyboard_buffer(buf);
 		memcpy((char*) cpu.ebx, buf, cpu.ecx);
 	}
-	else if (cpu.eax == 5)
+	else if (cpu.eax == 5)	// puts
 	{
 		puts((char*) cpu.ebx, cpu.ecx, cpu.edx); // Modified puts() on kernel side
+	}
+	else if (cpu.eax == 6)	// read_clusters
+	{
+		read_clusters((void*) cpu.ebx, cpu.ecx, 1);
+	}
+	else if (cpu.eax == 7) 	// dirtable_linear_search
+	{
+		struct FAT32DriverRequest request = *(struct FAT32DriverRequest*) cpu.ebx;
+		*((uint32_t*) cpu.ecx) = dirtable_linear_search(request, cpu.edx);
+	}
+	else if (cpu.eax == 8) // get_cluster_number
+	{
+		*((uint32_t*) cpu.ebx) = get_cluster_number(cpu.ecx, cpu.edx);
+	}
+	else if (cpu.eax == 9) // get_cluster_size
+	{
+		*((uint32_t*) cpu.ebx) = get_cluster_size(cpu.ecx);
 	}
 }
 

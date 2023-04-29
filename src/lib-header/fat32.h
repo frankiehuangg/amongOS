@@ -256,23 +256,67 @@ int8_t write(struct FAT32DriverRequest request);
  */
 int8_t delete(struct FAT32DriverRequest request);
 
+
+
+/* -- Helper functions -- */
+
 /**
- * FAT32 DirectoryTable search
+ * DirectoryTable search, search through directory table for a file or folder
+ * 
+ * @param request request from CRUD operations
+ * @param is_file 0 if directory input, 1 if file input
  */
 uint32_t dirtable_linear_search(struct FAT32DriverRequest request, uint8_t is_file);
 
+/**
+ * Get Cluster Number, get an object's cluster number
+ * 
+ * @param index  index of the object in its parent directory
+ * @param parent_cluster_number cluster_number of the object's parent directory
+ */
 uint32_t get_cluster_number(uint32_t index, uint32_t parent_cluster_number);
 
+/**
+ * Get Cluster Size, get an object's cluster size
+ * 
+ * @param cluster_number cluster_number of the object
+ */
 uint32_t get_cluster_size(uint32_t cluster_number);
 
+/**
+ * Is Cluster Folder, check if an object is a folder
+ * 
+ * @param parent_cluster_number cluster_number of the object's parent directory
+ */
 uint8_t is_cluster_folder(uint32_t parent_cluster_number);
 
+/**
+ * Find Empty DirectoryTable Index, find an empty directory table index
+ * 
+ * @param parent_cluster_number cluster_number of the target directorytable
+ */
 uint32_t find_empty_dir_table_index(uint32_t parent_cluster_number);
 
+/**
+ * Write Directory, write a directory to system
+ * 
+ * @param parent_cluster_number cluster_number of the target's parent directory 
+ * @param name name of directory going to be written
+ */
 void write_directory(uint32_t parent_cluster_number, char* name);
 
+/**
+ * Write Directory, write a file to system
+ * 
+ * @param request request from CRUD operations
+ */
 void write_file(struct FAT32DriverRequest request);
 
+/**
+ * Update Directory Entry, update user attribute of a directory entry
+ * 
+ * @param parent_cluster_number cluster_number of the target's directory 
+ */
 void update_directory_entry(uint32_t parent_cluster_number);
 
 #endif

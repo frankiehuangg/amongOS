@@ -30,8 +30,16 @@ sudo apt install gcc nasm make qemu-system-x86 genisoimage
 ```
 
 2. Clone this repository
-3. run 'make all' in terminal
-4. run 'make run'
+3. To compile the OS, run the following command
+
+```
+make clean
+make disk
+make insert-shell
+make run
+```
+
+4. qemu should spawn now, click Machine, then untick pause
 
 ## Milestone
 The features listed below is 100% completed and implemented.

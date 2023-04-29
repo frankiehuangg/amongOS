@@ -122,6 +122,11 @@ void syscall(struct CPURegister cpu, __attribute__((unused)) struct InterruptSta
 	{
 		*((uint32_t*) cpu.ebx) = get_cluster_size(cpu.ecx);
 	}
+	else if (cpu.eax == 10) // framebuffer_clear
+	{
+		framebuffer_clear();
+		framebuffer_set_cursor(0, 0);
+	}
 }
 
 void activate_keyboard_interrupt(void)

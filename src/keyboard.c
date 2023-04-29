@@ -119,6 +119,7 @@ void keyboard_isr(void)
 				framebuffer_write(row, col-1, 0, 0xF, 0);
 				framebuffer_set_cursor(row, col-1);
 
+				keyboard_state.keyboard_buffer[keyboard_state.buffer_index] = '\0';
 				keyboard_state.keyboard_buffer[keyboard_state.buffer_index - 1] = '\0';
 
 				keyboard_state.buffer_index--;
